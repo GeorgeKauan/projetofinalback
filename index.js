@@ -1,8 +1,29 @@
 const express = require('express')
 const cors = require('cors')
+const mysql = require('mysql')
+
 const app = express()
 app.use(cors())
 const port = 3000
+
+const connection = mysql.createConnection({
+  host: 'localhost',
+  port: '3307', //adicionei por ter alterei a minha porta do mysql
+  user: 'root',
+  password: '',
+  database: 'loja4v'
+})
+
+app.listen(port, () => {
+  connection.connect(err => {
+    if (err) {
+      console.log(err.message)
+    } else {
+      console.log('BD conectado!')
+    }
+  })
+  console.log(`Aplicação rodando na porta ${port}`)
+})
 
 const produtos = [
     { id: 1, nome: 'Smartphone Motorola G85', marca: 'Motorola', preco: 1800.00, quantidade: 50 }, 
@@ -13,8 +34,18 @@ const produtos = [
  * @param res objeto para tratar a resposta HTTP
 */
 app.get('/', (req, res) => { res.redirect('/produtos') })
+
 /** Devolve a lista de todos os produtos */
-app.get('/produtos', (req, res) => { res.json(produtos) })
+app.get('/produtos', (req, res) => { 
+  connection.query('SELECT * FROM produto', (err, rows, fields) => {
+  if (err) throw err
+
+  console.log(rows)
+})
+
+  res.json(produtos) 
+})
+
 /** Devolve um produto específico pelo seu id */
 app.get('/produtos/:id', (req, res) => {
     const id = +req.params.id
@@ -42,7 +73,4 @@ app.get('/produtos/:id/preco', (req, res) => {
     } else {
       res.json({})
     }
-})
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
 })
