@@ -25,10 +25,6 @@ app.listen(port, () => {
   console.log(`Aplicação rodando na porta ${port}`)
 })
 
-const produtos = [
-  { id: 1, nome: 'Smartphone Motorola G85', marca: 'Motorola', preco: 1800.00, quantidade: 50 },
-  { id: 2, nome: 'TV Lg 42 polegadas', marca: 'Motorola', preco: 1499.99, quantidade: 12 }
-]
 /** Ponto de entrada raíz da aplicação 
  * @param req objeto com os dados da requisição HTTP
  * @param res objeto para tratar a resposta HTTP
@@ -43,7 +39,7 @@ app.get('/produtos', (req, res) => {
     if (!erro) {
       res.json(produtos)
     } else {
-      console.log(`Erro: ${err.sqlMessage}`)
+      console.log(`Erro: ${erro.sqlMessage}`)
       res.json([])
     }
   })
@@ -58,7 +54,7 @@ app.get('/produtos/:id', (req, res) => {
       if (!erro) {
         res.json(produto)
       } else {
-        console.log(`Erro: ${err.sqlMessage}`)
+        console.log(`Erro: ${erro.sqlMessage}`)
         res.json([])
       }
     })
@@ -75,7 +71,7 @@ app.get('/produtos/:id/preco', (req, res) => {
       if (!erro) {
         res.json(preco)
       } else {
-        console.log(`Erro: ${err.sqlMessage}`)
+        console.log(`Erro: ${erro.sqlMessage}`)
         res.json([])
       }
     })
