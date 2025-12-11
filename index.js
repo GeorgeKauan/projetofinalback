@@ -1,81 +1,44 @@
-const express = require('express')
-const cors = require('cors')
-const mysql = require('mysql')
+const express = require('express');
+const cors = require('cors');
+const app = express();
+const port = 3000;
 
-const app = express()
-app.use(cors())
-const port = 3000
+// Middleware
+app.use(cors());
+app.use(express.json()); // permite body em JSON
 
-const connection = mysql.createConnection({
-  host: 'localhost',
-  port: '3307', //adicionei por ter alterei a minha porta do mysql
-  user: 'root',
-  password: '',
-  database: 'loja4v'
-})
+// Conexão MySQL centralizada
+const connection = require('./src/config/db');
 
+// Rotas
+const ativosRoutes = require('./src/routes/ativos.routes');
+const authRoutes = require('./src/routes/auth.routes');
+const rotinasRoutes = require('./src/routes/rotinas.routes');
+const favoritosRoutes = require('./src/routes/favoritos.routes');
+const ativosRoutes = require('./src/routes/ativos.routes');
+app.use('/ativos', ativosRoutes);
+
+
+// Rota raiz
+app.get('/', (req, res) => {
+  res.send("API PeleNativa Online");
+});
+
+// Usando rotas
+app.use('/ativos', ativosRoutes);
+app.use('/auth', authRoutes);
+app.use('/rotinas', rotinasRoutes);
+app.use('/favoritos', favoritosRoutes);
+
+// Iniciando o servidor
 app.listen(port, () => {
   connection.connect(err => {
     if (err) {
-      console.log(err.message)
+      console.log("Erro ao conectar no banco:", err.message);
     } else {
-      console.log('BD conectado!')
+      console.log("Banco de dados conectado!");
     }
-  })
-  console.log(`Aplicação rodando na porta ${port}`)
-})
+  });
 
-/** Ponto de entrada raíz da aplicação 
- * @param req objeto com os dados da requisição HTTP
- * @param res objeto para tratar a resposta HTTP
-*/
-app.get('/', (req, res) => { res.redirect('/produtos') })
-
-/** Devolve a lista de todos os produtos */
-app.get('/produtos', (req, res) => {
-  //connection.query realiza uma operação no BD (select, insert, update...)
-  const consulta = 'SELECT * FROM produto'
-  connection.query(consulta, (erro, produtos) => {
-    if (!erro) {
-      res.json(produtos)
-    } else {
-      console.log(`Erro: ${erro.sqlMessage}`)
-      res.json([])
-    }
-  })
-})
-
-/** Devolve um produto específico pelo seu id */
-app.get('/produtos/:id', (req, res) => {
-  const id = +req.params.id
-  if (req.params.id && id >= 0) {
-    const consulta = 'SELECT * FROM produto WHERE id=?'
-    connection.query(consulta, [id] ,(erro, produto) => {
-      if (!erro) {
-        res.json(produto)
-      } else {
-        console.log(`Erro: ${erro.sqlMessage}`)
-        res.json([])
-      }
-    })
-  } else {
-    res.json([])
-  }
-})
-//Obter o preço de um produto dado o seu id
-app.get('/produtos/:id/preco', (req, res) => {
-  const id = +req.params.id
-  if (req.params.id && id >= 0) {
-    const consulta = 'SELECT preco FROM produto WHERE id=?'
-    connection.query(consulta, [id] ,(erro, preco) => {
-      if (!erro) {
-        res.json(preco)
-      } else {
-        console.log(`Erro: ${erro.sqlMessage}`)
-        res.json([])
-      }
-    })
-  } else {
-    res.json([])
-  }
-})
+  console.log(`API rodando na porta ${port}`);
+});
