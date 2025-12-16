@@ -1,60 +1,29 @@
-const connection = require('../config/db');
+// src/routes/ativos.controller.js
 
+const ativosModel = require('../models/ativos'); // Importa o Model criado no passo 1
+
+// Função que processa a requisição GET para /api/ativos/destaques
+const listarDestaques = async (req, res) => {
+    try {
+        // 1. Chama o Model para buscar os dados no MySQL
+        const ativos = await ativosModel.getAtivosEmDestaque(); 
+        
+        // 2. Retorna os dados para o Front-end em formato JSON (Status 200 OK)
+        return res.status(200).json(ativos);
+
+    } catch (error) {
+        // 3. Se houver qualquer erro (conexão, SQL inválido, etc.)
+        console.error('Falha na requisição listarDestaques:', error);
+        
+        // Retorna um erro 500 para o Front-end
+        return res.status(500).json({ 
+            mensagem: "Erro interno no servidor ao processar a lista de ativos.",
+            detalhe: error.message 
+        });
+    }
+};
+
+// Exporta a função para que a Rota possa utilizá-la
 module.exports = {
-  
-  // Listar todos os ativos
-  listarAtivos(req, res) {
-    const sql = "SELECT * FROM ativo";
-    connection.query(sql, (err, result) => {
-      if (err) return res.status(500).json({ erro: err.message });
-      res.json(result);
-    });
-  },
-
-  // Buscar ativo específico
-  buscarAtivo(req, res) {
-    const id = +req.params.id;
-    const sql = "SELECT * FROM ativo WHERE id=?";
-    connection.query(sql, [id], (err, result) => {
-      if (err) return res.status(500).json({ erro: err.message });
-      res.json(result[0] || {});
-    });
-  },
-
-  // Pesquisa geral
-  pesquisar(req, res) {
-    const termo = '%' + req.params.termo + '%';
-    const sql = `
-      SELECT * FROM ativo 
-      WHERE nome LIKE ? 
-         OR funcao LIKE ?
-         OR objetivo LIKE ?
-    `;
-    connection.query(sql, [termo, termo, termo], (err, result) => {
-      if (err) return res.status(500).json({ erro: err.message });
-      res.json(result);
-    });
-  },
-
-  // Filtragem avançada
-  filtrar(req, res) {
-    const { tipoPele, necessidade, categoria } = req.params;
-
-    const sql = `
-      SELECT * FROM ativo
-      WHERE tipo_pele LIKE ?
-        AND necessidade LIKE ?
-        AND categoria LIKE ?
-    `;
-
-    connection.query(
-      [ '%' + tipoPele + '%', '%' + necessidade + '%', '%' + categoria + '%' ],
-      sql, 
-      (err, result) => {
-        if (err) return res.status(500).json({ erro: err.message });
-        res.json(result);
-      }
-    );
-  }
-
+    listarDestaques,
 };

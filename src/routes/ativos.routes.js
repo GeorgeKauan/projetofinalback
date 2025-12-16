@@ -1,17 +1,18 @@
+// src/routes/ativos.routes.js
+
 const express = require('express');
 const router = express.Router();
-const ativosController = require('../controllers/ativos.controller');
+const ativosController = require('./ativos.controller'); // Importa o Controller do passo 2
 
-// Listar todos os ativos
-router.get('/', ativosController.listarAtivos);
+// --- Definição do Endpoint ---
 
-// Buscar ativo pelo ID
-router.get('/:id', ativosController.buscarAtivo);
+// Rota: GET /api/ativos/destaques
+// Quando o Angular fizer um GET para essa URL, o Express chama a função listarDestaques
+router.get('/destaques', ativosController.listarDestaques);
 
-// Pesquisa por nome, função ou objetivo
-router.get('/buscar/:termo', ativosController.pesquisar);
 
-// Filtros: tipo de pele / necessidade / categoria
-router.get('/filtrar/:tipoPele/:necessidade/:categoria', ativosController.filtrar);
+// Esta rota será útil mais tarde, para listar todos os ativos no catálogo
+// router.get('/', ativosController.listarTodos); 
+
 
 module.exports = router;
